@@ -28,10 +28,20 @@ def create_app(test_config=None):
     return response
 
   '''
-  @TODO: 
+  @DONE:
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
+  @app.route('/categories')
+  def retrieve_categories():
+    categories = {str(category.id):category.type for category in Category.query.all()}
+    if not categories:
+      abort(404)
+
+    return jsonify({
+      'success': True,
+      'categories': categories
+    })
 
 
   '''
@@ -85,7 +95,21 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
+  @app.route('/categories/<int:cat_id>/questions')
+  def retrieve_questions_by_categories(cat_id):
+    try:
+      category = Category.query.get(cat_id)
+      questions = Question.query.filter(Question.category==cat_id)
+      questions = [question.format() for question in questions]
 
+      return jsonify({
+        'success': True,
+        'questions': questions,
+        'totalQuestions': len(questions),
+        'currentCategory': category.type
+      })
+    except:
+      abort(404)
 
   '''
   @TODO: 
@@ -104,6 +128,15 @@ def create_app(test_config=None):
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
+  @app.errorhandler(404)
+  def not_found(error):
+    return (
+      jsonify({
+        'success': False,
+        'error': 404,
+        'message': 'Resource not found.'
+      }), 404
+    )
   
   return app
 

@@ -37,7 +37,43 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().get('/categories')
         data = json.loads(res.data)
 
+        expect_categories =  {
+            '1' : "Science",
+            '2' : "Art",
+            '3' : "Geography",
+            '4' : "History",
+            '5' : "Entertainment",
+            '6' : "Sports" }
         self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['categories'], expect_categories)
+
+    def test_get_category_questions(self):
+        res = self.client().get('/categories/1/questions')
+        data = json.loads(res.data)
+        expect_question = [
+            {'answer': 'The Liver', 'category': 1, 'difficulty': 4, 'id': 20, 'question': 'What is the heaviest organ in the human body?'},
+            {'answer': 'Alexander Fleming', 'category': 1, 'difficulty': 3, 'id': 21, 'question': 'Who discovered penicillin?'},
+            {'answer': 'Blood', 'category': 1, 'difficulty': 4, 'id': 22, 'question': 'Hematology is a branch of medicine involving the study of what?'}
+        ]
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['totalQuestions'], 3)
+        self.assertEqual(data['currentCategory'], 'Science')
+
+        for question in data['questions']:
+            self.assertTrue(question in expect_question)
+
+    def test_404_get_category_questions(self):
+        res = self.client().get('/categories/7/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['error'], 404)
+        self.assertEqual(data['message'], 'Resource not found.')
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
