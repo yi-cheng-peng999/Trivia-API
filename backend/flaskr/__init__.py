@@ -14,12 +14,12 @@ def create_app(test_config=None):
   setup_db(app)
   
   '''
-  @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+  @DONE: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
   CORS(app, resources={'/': {'origins': '*'}})
 
   '''
-  @TODO: Use the after_request decorator to set Access-Control-Allow
+  @DONE: Use the after_request decorator to set Access-Control-Allow
   '''
   @app.after_request
   def after_request(response):
@@ -45,7 +45,7 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
+  @DONE:
   Create an endpoint to handle GET requests for questions, 
   including pagination (every 10 questions). 
   This endpoint should return a list of questions, 
@@ -56,6 +56,28 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
+  @app.route('/questions')
+  def retrieve_questions():
+    page = request.args.get('page', 1, type=int)
+    start = (page-1)*QUESTIONS_PER_PAGE
+    end = page*QUESTIONS_PER_PAGE
+
+    questions = Question.query.order_by(Question.id).all()
+    total = len(questions)
+    select_questions = questions[start:end]
+    select_questions = [question.format() for question in select_questions]
+    categories = {str(category.id):category.type for category in Category.query.all()}
+
+    if len(select_questions) == 0:
+      abort(404)
+    # MISSING CURRENT CATEGORY, FROM REQUEST.ARGS?
+    return jsonify({
+      'success': True,
+      'questions': select_questions,
+      'totalQuestions': total,
+      'categories': categories
+    })
+
 
   '''
   @TODO: 
