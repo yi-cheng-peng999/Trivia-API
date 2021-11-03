@@ -97,6 +97,25 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+  @app.route('/questions', methods=['POST'])
+  def post_question():
+    body = request.get_json()
+    new_question = body.get('question', None)
+    new_answer = body.get('answer', None)
+    new_difficulty = body.get('difficulty', None)
+    new_category = body.get('category', None)
+    if (new_question and new_answer and new_difficulty and new_category) is None:
+      abort(422)
+
+    try:
+      question = Question(new_question, new_answer, new_category, new_difficulty)
+      question.insert()
+      return jsonify({
+        'success': True,
+        'q_id': question.id
+      })
+    except:
+      abort(422)
 
   '''
   @TODO: 
@@ -110,7 +129,7 @@ def create_app(test_config=None):
   '''
 
   '''
-  @TODO: 
+  @DONE:
   Create a GET endpoint to get questions based on category. 
 
   TEST: In the "List" tab / main screen, clicking on one of the 
@@ -158,6 +177,16 @@ def create_app(test_config=None):
         'error': 404,
         'message': 'Resource not found.'
       }), 404
+    )
+
+  @app.errorhandler(422)
+  def unprocessable(error):
+    return (
+      jsonify({
+        'success': False,
+        'error': 422,
+        'message': 'Unprocessable.'
+      }), 422
     )
   
   return app

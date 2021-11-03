@@ -105,7 +105,41 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().delete('/questions/120')
         data = json.loads(res.data)
 
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['error'], 422)
+        self.assertEqual(data['message'], 'Unprocessable.')
+
+    def test_post_questions(self):
+        new_question = {
+            'question':  'Heres a new question string',
+            'answer':  'Heres a new answer string',
+            'difficulty': 1,
+            'category': 3,
+        }
+        res = self.client().post('/questions', json=new_question)
+        data = json.loads(res.data)
+
         self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['q_id'] is not None)
+
+        question = Question.query.get(data['q_id'])
+        question.delete()
+
+    def test_422_post_questions(self):
+        new_question = {
+            'answer':  'Heres a new answer string',
+            'difficulty': 1,
+            'category': 3,
+        }
+        res = self.client().post('/questions', json=new_question)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['error'], 422)
+        self.assertEqual(data['message'], 'Unprocessable.')
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
