@@ -102,6 +102,18 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'Resource not found.')
 
     def test_delete_question_by_id(self):
+        new_question = Question('How do you delete a quesiton by id?.', 'random answer', '1', 3)
+        new_question.insert()
+        id = new_question.format()['id']
+
+        res = self.client().delete('/questions/{}'.format(id))
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['delete_id'], id)
+
+    def test_422_delete_question_by_id(self):
         res = self.client().delete('/questions/120')
         data = json.loads(res.data)
 
@@ -140,6 +152,18 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['error'], 422)
         self.assertEqual(data['message'], 'Unprocessable.')
+
+    def test_post_search_question(self):
+        search = { 'searchTerm':  'title' }
+        res = self.client().post('/questions/search', json=search)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['totalQuestions'], 2)
+
+
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

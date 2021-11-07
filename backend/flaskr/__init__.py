@@ -86,9 +86,21 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
+  @app.route('/questions/<int:q_id>', methods=['DELETE'])
+  def delete_question_by_id(q_id):
+    try:
+      question = Question.query.get(q_id)
+      question.delete()
+      return jsonify({
+        'success': True,
+        'delete_id': q_id
+      })
+    except:
+      abort(422)
+
 
   '''
-  @TODO: 
+  @DONE:
   Create an endpoint to POST a new question, 
   which will require the question and answer text, 
   category, and difficulty score.
@@ -118,7 +130,7 @@ def create_app(test_config=None):
       abort(422)
 
   '''
-  @TODO: 
+  @DONE:
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 
   is a substring of the question. 
@@ -127,7 +139,22 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
+  @app.route('/questions/search', methods=['POST'])
+  def post_search_questions():
+    body = request.get_json()
+    search_term = body.get('searchTerm', None)
 
+    if search_term:
+      questions = Question.query.filter(Question.question.like('%{}%'.format(search_term))).all()
+      questions = [question.format() for question in questions]
+
+      return jsonify({
+        'success': True,
+        'questions': questions,
+        'totalQuestions': len(questions)
+      })
+    else:
+      abort(422)
   '''
   @DONE:
   Create a GET endpoint to get questions based on category. 
@@ -165,7 +192,7 @@ def create_app(test_config=None):
   '''
 
   '''
-  @TODO: 
+  @DONE:
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
