@@ -70,7 +70,7 @@ def create_app(test_config=None):
 
     if len(select_questions) == 0:
       abort(404)
-    # MISSING CURRENT CATEGORY, FROM REQUEST.ARGS?
+
     return jsonify({
       'success': True,
       'questions': select_questions,
@@ -80,7 +80,7 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
+  @DONE:
   Create an endpoint to DELETE question using a question ID. 
 
   TEST: When you click the trash icon next to a question, the question will be removed.
@@ -180,7 +180,7 @@ def create_app(test_config=None):
       abort(404)
 
   '''
-  @TODO: 
+  @DONE:
   Create a POST endpoint to get questions to play the quiz. 
   This endpoint should take category and previous question parameters 
   and return a random questions within the given category, 
@@ -190,12 +190,48 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+  @app.route('/quizzes', methods=['POST'])
+  def post_quizzes():
+    body = request.get_json()
+    if 'previous_questions' not in body or 'quiz_category' not in body:
+      abort(422)
+
+    previous_questions = body.get('previous_questions', None)
+    quiz_category = body.get('quiz_category', None)['id']
+    print(previous_questions)
+    print(quiz_category)
+    print(previous_questions and quiz_category)
+    if quiz_category == 0:
+      questions = Question.query.filter(Question.id.notin_((previous_questions))).all()
+    else:
+      questions = Question.query.filter_by(category=quiz_category).filter(Question.id.notin_((previous_questions))).all()
+    questions = [question.format() for question in questions]
+    if questions:
+      q_i = random.randrange(len(questions))
+      return jsonify({
+        'success': True,
+        'question': questions[q_i]
+      })
+    else:
+      abort(422)
+
+
 
   '''
   @DONE:
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
+  @app.errorhandler(400)
+  def bad_request(error):
+    return (
+      jsonify({
+        'success': False,
+        'error': 400,
+        'message': 'Bad request.'
+      }), 400
+    )
+
   @app.errorhandler(404)
   def not_found(error):
     return (
@@ -215,7 +251,17 @@ def create_app(test_config=None):
         'message': 'Unprocessable.'
       }), 422
     )
-  
+
+  @app.errorhandler(500)
+  def internal_server_error(error):
+    return (
+      jsonify({
+        'success': False,
+        'error': 500,
+        'message': 'Internal server error.'
+      }), 500
+    )
+
   return app
 
     
