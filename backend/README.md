@@ -99,6 +99,7 @@ The API will return three error types when requests fail:
 #### GET /categories
 - General: 
   - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category.
+- Request Arguments: None
 - Sample:
   - `curl http://127.0.0.1:5000/categories`
 - Response:
@@ -118,7 +119,8 @@ The API will return three error types when requests fail:
 #### GET /questions?page=${integer}
 - General:
   - Fetches a paginated set of questions, a total number of questions, all categories and current category string.
-  - Sample:
+- Request Arguments: page - integer
+- Sample:
   - `curl http://127.0.0.1:5000/questions?page=1`
 - Response:
 ```js
@@ -211,8 +213,9 @@ The API will return three error types when requests fail:
 #### GET /categories/${id}/questions
 - General:
   - Fetches questions for a cateogry specified by id request argument.
-  - Sample:
-    - `curl http://127.0.0.1:5000/categories/1/questions`
+- Request Arguments: id - integer
+- Sample:
+  - `curl http://127.0.0.1:5000/categories/1/questions`
 - Response:
 ```js
 {
@@ -248,8 +251,9 @@ The API will return three error types when requests fail:
 #### DELETE /questions/${id}
 - General:
   - Deletes a specified question using the id of the question.
-  - Sample:
-    - `curl -X DELETE http://127.0.0.1:5000/questions/2`
+- Request Arguments: id - integer
+- Sample:
+  - `curl -X DELETE http://127.0.0.1:5000/questions/2`
 - Response:
 ```js
 {
@@ -261,8 +265,13 @@ The API will return three error types when requests fail:
 #### POST /quizzes
 - General:
   - Sends a post request in order to get the next question.
-  - Sample:
-    - ` curl -X POST  http://127.0.0.1:5000/quizzes -H "Content-Type: application/json" -d '{"previous_questions":[1,4,20,15],"quiz_category":{"type":"Science","id":"1"}}'`
+- Request Body:
+{
+  'previous_questions':  an array of question id's such as [1, 4, 20, 15],
+  'quiz_category': a string of the current category
+}
+- Sample:
+  - ` curl -X POST  http://127.0.0.1:5000/quizzes -H "Content-Type: application/json" -d '{"previous_questions":[1,4,20,15],"quiz_category":{"type":"Science","id":"1"}}'`
 - Response:
 ```js
 {
@@ -280,8 +289,15 @@ The API will return three error types when requests fail:
 #### POST /questions
 - General:
   - Sends a post request in order to add a new question.
-  - Sample:
-    - `curl -X POST  http://127.0.0.1:5000/questions -H "Content-Type: application/json" -d '{"question":"Heres a new question string","answer":"Heres a new answer string","difficulty":1,"category":3}'`
+- Request Body:
+{
+    'question':  'Heres a new question string',
+    'answer':  'Heres a new answer string',
+    'difficulty': 1,
+    'category': 3,
+}
+- Sample:
+  - `curl -X POST  http://127.0.0.1:5000/questions -H "Content-Type: application/json" -d '{"question":"Heres a new question string","answer":"Heres a new answer string","difficulty":1,"category":3}'`
 - Response:
 ```js
 {
@@ -293,8 +309,12 @@ The API will return three error types when requests fail:
 #### POST /questions/search
 - General:
   - Sends a post request in order to search for a specific question by search term.
-  - Sample:
-    - `curl http://127.0.0.1:5000/questions/search -X POST -H "Content-Type: application/json" -d '{"searchTerm":"title"}'`
+- Request Body:
+{
+    'searchTerm': 'this is the term the user is looking for'
+}
+- Sample:
+  - `curl http://127.0.0.1:5000/questions/search -X POST -H "Content-Type: application/json" -d '{"searchTerm":"title"}'`
 - Response:
 ```js
 {
