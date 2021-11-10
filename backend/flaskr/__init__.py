@@ -198,9 +198,6 @@ def create_app(test_config=None):
 
     previous_questions = body.get('previous_questions', None)
     quiz_category = body.get('quiz_category', None)['id']
-    print(previous_questions)
-    print(quiz_category)
-    print(previous_questions and quiz_category)
     if quiz_category == 0:
       questions = Question.query.filter(Question.id.notin_((previous_questions))).all()
     else:
